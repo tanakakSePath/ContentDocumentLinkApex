@@ -19,11 +19,14 @@ trigger FileGuardOnContentDocument on ContentDocument (before delete) {
         FROM ContentDocumentLink
         WHERE ContentDocumentId IN :docIds
     ]) {
-        if (cdl.LinkedEntityId != null &&
-            cdl.LinkedEntityId.getSObjectType() == TARGET_TYPE) {
-            docIdToTargetParentIds.putIfAbsent(cdl.ContentDocumentId, new Set<Id>());
-            docIdToTargetParentIds.get(cdl.ContentDocumentId).add(cdl.LinkedEntityId);
+    if (cdl.LinkedEntityId != null &&
+        cdl.LinkedEntityId.getSObjectType() == TARGET_TYPE) {
+    
+        if (!docIdToTargetParentIds.containsKey(cdl.ContentDocumentId)) {
+            docIdToTargetParentIds.put(cdl.ContentDocumentId, new Set<Id>());
         }
+        docIdToTargetParentIds.get(cdl.ContentDocumentId).add(cdl.LinkedEntityId);
+    }
     }
     if (docIdToTargetParentIds.isEmpty()) return; // 対象外ファイルのみ → 何もしない
 
